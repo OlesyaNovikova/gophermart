@@ -85,10 +85,6 @@ func UpdAccrual(ctx context.Context, order j.Orders) {
 				date := time.Now()
 				dateStr := date.Format(time.RFC3339)
 
-				order.Status = status
-				order.Accrual = accrual.Accrual
-				order.Date = date
-				order.DateStr = dateStr
 				err = store.s.UpdateOrder(ctx, j.Orders{
 					UserName: order.UserName,
 					Number:   order.Number,

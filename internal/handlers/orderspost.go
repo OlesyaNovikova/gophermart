@@ -8,6 +8,7 @@ import (
 
 	ac "github.com/OlesyaNovikova/gophermart/internal/integrations/accruals"
 	j "github.com/OlesyaNovikova/gophermart/internal/models/json"
+	a "github.com/OlesyaNovikova/gophermart/internal/utils/auth"
 	l "github.com/OlesyaNovikova/gophermart/internal/utils/luhn"
 )
 
@@ -19,7 +20,11 @@ func OrdersPost(ch chan j.Orders) http.HandlerFunc {
 			http.Error(res, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-		name := cookie.Value
+		name, err := a.GetUserID(cookie.Value)
+		if err != nil {
+			http.Error(res, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 
 		var inBuf bytes.Buffer
 		_, err = inBuf.ReadFrom(req.Body)

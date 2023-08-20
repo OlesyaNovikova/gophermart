@@ -3,6 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+
+	a "github.com/OlesyaNovikova/gophermart/internal/utils/auth"
 )
 
 func OrdersGet() http.HandlerFunc {
@@ -13,7 +15,11 @@ func OrdersGet() http.HandlerFunc {
 			http.Error(res, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-		name := cookie.Value
+		name, err := a.GetUserID(cookie.Value)
+		if err != nil {
+			http.Error(res, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 		orders, err := store.s.GetOrders(ctx, name)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)

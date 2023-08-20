@@ -37,7 +37,7 @@ func BuildJWTString(user string) (string, error) {
 }
 
 // GetUserId проверяет валидность токена и возвращает UserId.
-func GetUserId(tokenString string) (string, error) {
+func GetUserID(tokenString string) (string, error) {
 	cl := &claims{}
 	token, err := jwt.ParseWithClaims(tokenString, cl,
 		func(t *jwt.Token) (interface{}, error) {
