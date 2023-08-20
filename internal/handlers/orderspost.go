@@ -11,7 +11,7 @@ import (
 	l "github.com/OlesyaNovikova/gophermart/internal/utils/luhn"
 )
 
-func OrdersPost() http.HandlerFunc {
+func OrdersPost(ch chan j.Orders) http.HandlerFunc {
 	fn := func(res http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 		cookie, err := req.Cookie("authToken")
@@ -34,9 +34,9 @@ func OrdersPost() http.HandlerFunc {
 			return
 		}
 
-		order, err := store.s.GetOrder(ctx, number)
+		ord, err := store.s.GetOrder(ctx, number)
 		if err == nil {
-			if order.UserName == name {
+			if ord.UserName == name {
 				res.WriteHeader(http.StatusOK)
 				return
 			}
@@ -57,18 +57,24 @@ func OrdersPost() http.HandlerFunc {
 		date := time.Now()
 		dateStr := date.Format(time.RFC3339)
 
-		err = store.s.AddOrder(ctx, j.Orders{
+		order := j.Orders{
 			UserName: name,
 			Number:   number,
 			Status:   status,
 			Accrual:  accrual.Accrual,
 			DateStr:  dateStr,
 			Date:     date,
-		})
+		}
+
+		err = store.s.AddOrder(ctx, order)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		if status != j.StatInvalid && status != j.StatProcessed {
+			ch <- order
+		}
+
 		res.WriteHeader(http.StatusAccepted)
 	}
 	return http.HandlerFunc(fn)
