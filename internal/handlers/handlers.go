@@ -12,6 +12,9 @@ type Storage interface {
 	AddOrder(ctx context.Context, order j.Orders) error
 	GetOrder(ctx context.Context, number string) (j.Orders, error)
 	GetOrders(ctx context.Context, userID string) ([]j.Orders, error)
+	GetBalance(ctx context.Context, userID string) (j.Balance, error)
+	AddWithdraw(ctx context.Context, withdraw j.Withdraws) error
+	GetWithdraws(ctx context.Context, userID string) ([]j.Withdraws, error)
 }
 
 type storage struct {

@@ -8,14 +8,16 @@ import (
 )
 
 type TestStore struct {
-	us map[string][]byte
-	or map[string]j.Orders
+	us map[string][]byte      //ключ UserName
+	or map[string]j.Orders    //ключ Number
+	wd map[string]j.Withdraws //ключ Order
 }
 
 func NewStore(addr string) (TestStore, error) {
 	return TestStore{
 		us: make(map[string][]byte),
 		or: make(map[string]j.Orders),
+		wd: make(map[string]j.Withdraws),
 	}, nil
 }
 
@@ -76,4 +78,43 @@ func (t *TestStore) GetOrdersForUpd(ctx context.Context) ([]j.Orders, error) {
 		}
 	}
 	return updOrders, nil
+}
+
+func (t *TestStore) GetBalance(ctx context.Context, userID string) (j.Balance, error) {
+	orders, err := t.GetOrders(ctx, userID)
+	if err != nil {
+		return j.Balance{}, err
+	}
+	var balance j.Balance
+	for _, order := range orders {
+		balance.Current += order.Accrual
+	}
+	withdraws, err := t.GetWithdraws(ctx, userID)
+	if err != nil {
+		return j.Balance{}, err
+	}
+	for _, withdraw := range withdraws {
+		balance.Current -= withdraw.Sum
+		balance.Withdrawn += withdraw.Sum
+	}
+	return balance, nil
+}
+
+func (t *TestStore) AddWithdraw(ctx context.Context, withdraw j.Withdraws) error {
+	if _, ok := t.wd[withdraw.Order]; !ok {
+		t.wd[withdraw.Order] = withdraw
+		return nil
+	}
+	return fmt.Errorf("заказ был добавлен ранее")
+}
+
+func (t *TestStore) GetWithdraws(ctx context.Context, userID string) ([]j.Withdraws, error) {
+	var userWithdraws []j.Withdraws
+	for _, wd := range t.wd {
+		if wd.UserName == userID {
+			userWithdraws = append(userWithdraws, wd)
+		}
+	}
+	//тут должна быть сортировка от старых к новым, но ее не будет в тестовом варианте
+	return userWithdraws, nil
 }

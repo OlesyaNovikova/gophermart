@@ -47,9 +47,9 @@ func main() {
 	router.HandleFunc("/api/user/login", m.WithLog(sugar, m.WithGzip(h.Login()))).Methods("POST")
 	router.HandleFunc("/api/user/orders", m.WithLog(sugar, m.WithGzip(h.OrdersPost(ch)))).Methods("POST")
 	router.HandleFunc("/api/user/orders", m.WithLog(sugar, m.WithGzip(h.OrdersGet()))).Methods("GET")
-	//router.HandleFunc("/api/user/balance", m.WithLog(sugar, m.WithGzip(h.Balance()))).Methods("GET")
+	router.HandleFunc("/api/user/balance", m.WithLog(sugar, m.WithGzip(h.Balance()))).Methods("GET")
 	//router.HandleFunc("/api/user/balance/withdraw", m.WithLog(sugar, m.WithGzip(h.Withdraw()))).Methods("POST")
-	//router.HandleFunc("/api/user/withdraws", m.WithLog(sugar, m.WithGzip(h.Withdraws()))).Methods("Get")
+	router.HandleFunc("/api/user/withdraws", m.WithLog(sugar, m.WithGzip(h.Withdrawals()))).Methods("Get")
 
 	sugar.Infow("Starting server", "addr", runAddr)
 

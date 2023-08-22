@@ -29,3 +29,16 @@ type Orders struct {
 	DateStr  string    `json:"uploaded_at"`
 	Date     time.Time `json:"-"`
 }
+
+type Withdraws struct {
+	UserName string    `json:"-"`
+	Order    string    `json:"order"`
+	Sum      float64   `json:"accrual"`
+	DateStr  string    `json:"processed_at,omitempty"`
+	Date     time.Time `json:"-"`
+}
+
+type Balance struct {
+	Current   float64 `json:"current"`
+	Withdrawn float64 `json:"withdrawn"`
+}
