@@ -33,7 +33,7 @@ type Orders struct {
 type Withdraws struct {
 	UserName string    `json:"-"`
 	Order    string    `json:"order"`
-	Sum      float64   `json:"accrual"`
+	Sum      float64   `json:"sum"`
 	DateStr  string    `json:"processed_at,omitempty"`
 	Date     time.Time `json:"-"`
 }

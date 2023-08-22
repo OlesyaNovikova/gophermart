@@ -50,7 +50,7 @@ func Withdraw() http.HandlerFunc {
 		}
 		if balance.Current < withdraw.Sum {
 			mut.Unlock()
-			http.Error(res, "Unauthorized", http.StatusUnauthorized)
+			http.Error(res, "Not enough bonus points", http.StatusPaymentRequired)
 			return
 		}
 		err = store.s.AddWithdraw(ctx, withdraw)
