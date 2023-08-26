@@ -123,8 +123,8 @@ func GetAccrual(ctx context.Context, number string) (j.Accrual, error) {
 		}
 		return accrual, nil
 	}
-	if stat == http.StatusNoContent {
+	/*if stat == http.StatusNoContent {
 		return j.Accrual{Number: number, Status: j.StatInvalid}, nil
-	}
+	}*/
 	return j.Accrual{}, fmt.Errorf("информация не получена, статус %v", resp.StatusCode)
 }
