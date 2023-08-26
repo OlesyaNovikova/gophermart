@@ -57,7 +57,7 @@ func AccrualRout(ctx context.Context, or chan j.Orders) {
 }
 
 func UpdAccrual(ctx context.Context, order j.Orders) {
-	ticker := time.NewTicker(0)
+	ticker := time.NewTicker(time.Millisecond)
 	defer ticker.Stop()
 
 	for {
