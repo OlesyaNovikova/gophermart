@@ -35,37 +35,29 @@ func InitAccruals(ctx context.Context, addr string, s Storage) chan j.Orders {
 	return order
 }
 
-func GetAccrual(ctx context.Context, number string) (j.Accrual, error) {
-	addr := accrualAddr + number
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, addr, nil)
-	if err != nil {
-		return j.Accrual{}, err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return j.Accrual{}, err
-	}
-	defer resp.Body.Close()
-
-	stat := resp.StatusCode
-	if stat == http.StatusOK {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return j.Accrual{}, err
+func AccrualRout(ctx context.Context, or chan j.Orders) {
+	orders, err := store.s.GetOrdersForUpd(ctx)
+	if err == nil {
+		for _, order := range orders {
+			o := order
+			go UpdAccrual(ctx, o)
 		}
-		var accrual j.Accrual
-		err = json.Unmarshal(body, &accrual)
-		if err != nil {
-			return j.Accrual{}, err
-		}
-		return accrual, nil
 	}
-	return j.Accrual{}, fmt.Errorf("информация не получена, статус %v", resp.StatusCode)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case o, ok := <-or:
+			if !ok {
+				return
+			}
+			go UpdAccrual(ctx, o)
+		}
+	}
 }
 
 func UpdAccrual(ctx context.Context, order j.Orders) {
-	ticker := time.NewTicker(updInt)
+	ticker := time.NewTicker(0)
 	defer ticker.Stop()
 
 	for {
@@ -73,6 +65,7 @@ func UpdAccrual(ctx context.Context, order j.Orders) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
+			ticker.Reset(updInt)
 			accrual, err := GetAccrual(ctx, order.Number)
 			if err != nil {
 				break
@@ -104,23 +97,34 @@ func UpdAccrual(ctx context.Context, order j.Orders) {
 	}
 }
 
-func AccrualRout(ctx context.Context, or chan j.Orders) {
-	orders, err := store.s.GetOrdersForUpd(ctx)
-	if err == nil {
-		for _, order := range orders {
-			o := order
-			go UpdAccrual(ctx, o)
-		}
+func GetAccrual(ctx context.Context, number string) (j.Accrual, error) {
+	addr := accrualAddr + number
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, addr, nil)
+	if err != nil {
+		return j.Accrual{}, err
 	}
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case o, ok := <-or:
-			if !ok {
-				return
-			}
-			go UpdAccrual(ctx, o)
-		}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return j.Accrual{}, err
 	}
+	defer resp.Body.Close()
+
+	stat := resp.StatusCode
+	if stat == http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return j.Accrual{}, err
+		}
+		var accrual j.Accrual
+		err = json.Unmarshal(body, &accrual)
+		if err != nil {
+			return j.Accrual{}, err
+		}
+		return accrual, nil
+	}
+	if stat == http.StatusNoContent {
+		return j.Accrual{Number: number, Status: j.StatInvalid}, nil
+	}
+	return j.Accrual{}, fmt.Errorf("информация не получена, статус %v", resp.StatusCode)
 }

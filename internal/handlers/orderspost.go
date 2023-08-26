@@ -2,11 +2,9 @@ package handlers
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 	"time"
 
-	ac "github.com/OlesyaNovikova/gophermart/internal/integrations/accruals"
 	j "github.com/OlesyaNovikova/gophermart/internal/models/json"
 	a "github.com/OlesyaNovikova/gophermart/internal/utils/auth"
 	l "github.com/OlesyaNovikova/gophermart/internal/utils/luhn"
@@ -49,24 +47,14 @@ func OrdersPost(ch chan j.Orders) http.HandlerFunc {
 			return
 		}
 
-		accrual, err := ac.GetAccrual(ctx, number)
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		status := accrual.Status
-		if status == j.StatRegistered {
-			status = j.StatNew
-		}
 		date := time.Now()
 		dateStr := date.Format(time.RFC3339)
 
 		order := j.Orders{
 			UserName: name,
 			Number:   number,
-			Status:   status,
-			Accrual:  accrual.Accrual,
+			Status:   j.StatNew,
+			Accrual:  0,
 			DateStr:  dateStr,
 			Date:     date,
 		}
@@ -76,9 +64,7 @@ func OrdersPost(ch chan j.Orders) http.HandlerFunc {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		if status != j.StatInvalid && status != j.StatProcessed {
-			ch <- order
-		}
+		ch <- order
 
 		res.WriteHeader(http.StatusAccepted)
 	}
