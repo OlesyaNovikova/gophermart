@@ -28,9 +28,5 @@ func Luhn(number string) bool {
 	}
 
 	// Проверяем, что сумма делится нацело на 10
-	if sum%10 == 0 {
-		return true
-	} else {
-		return false
-	}
+	return sum%10 == 0
 }

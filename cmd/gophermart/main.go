@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -18,12 +17,8 @@ import (
 
 func main() {
 	parseFlags()
+	a.InitAuth(key)
 
-	if envKey := os.Getenv("KEY"); envKey != "" {
-		a.InitAuth(envKey)
-	} else {
-		a.InitAuth("default")
-	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	//временное хранилище

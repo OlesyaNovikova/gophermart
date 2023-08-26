@@ -4,7 +4,7 @@ import "time"
 
 const (
 	StatRegistered = "REGISTERED"
-	StatNew        = "New"
+	StatNew        = "NEW"
 	StatProcessed  = "PROCESSED"
 	StatInvalid    = "INVALID"
 	StatProcessing = "PROCESSING"

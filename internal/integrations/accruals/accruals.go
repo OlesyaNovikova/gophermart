@@ -27,7 +27,7 @@ var client *http.Client
 const updInt = time.Second * 10
 
 func InitAccruals(ctx context.Context, addr string, s Storage) chan j.Orders {
-	accrualAddr = "http://" + addr + "/api/orders/"
+	accrualAddr = addr + "/api/orders/"
 	store.s = s
 	client = &http.Client{}
 	order := make(chan j.Orders)
