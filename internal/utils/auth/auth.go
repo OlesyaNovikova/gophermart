@@ -13,7 +13,7 @@ var key []byte
 
 type claims struct {
 	jwt.RegisteredClaims
-	userID string
+	UserName string
 }
 
 func InitAuth(k string) {
@@ -21,13 +21,13 @@ func InitAuth(k string) {
 }
 
 // BuildJWTString создаёт токен и возвращает его в виде строки.
-func BuildJWTString(user string) (string, error) {
+func BuildJWTString(userName string) (string, error) {
 	// создаём новый токен с алгоритмом подписи HS256 и утверждениями — claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExp)),
 		},
-		userID: user,
+		UserName: userName,
 	})
 	tokenString, err := token.SignedString(key)
 	if err != nil {
@@ -52,5 +52,5 @@ func GetUserID(tokenString string) (string, error) {
 	if !token.Valid {
 		return "", err
 	}
-	return cl.userID, nil
+	return cl.UserName, nil
 }
