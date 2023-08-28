@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"math"
 	"net/http"
 	"sync"
 
@@ -41,6 +42,8 @@ func Withdraw() http.HandlerFunc {
 			http.Error(res, "Invalid order number", http.StatusUnprocessableEntity)
 			return
 		}
+		withdraw.Sum = math.Ceil(withdraw.Sum*100) / 100
+
 		mut.Lock()
 		balance, err := store.s.GetBalance(ctx, name)
 		if err != nil {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"time"
 
@@ -120,6 +121,9 @@ func GetAccrual(ctx context.Context, number string) (j.Accrual, error) {
 		err = json.Unmarshal(body, &accrual)
 		if err != nil {
 			return j.Accrual{}, err
+		}
+		if accrual.Accrual > 0 {
+			accrual.Accrual = math.Floor(accrual.Accrual*100) / 100
 		}
 		return accrual, nil
 	}
