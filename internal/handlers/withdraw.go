@@ -6,6 +6,7 @@ import (
 	"math"
 	"net/http"
 	"sync"
+	"time"
 
 	j "github.com/OlesyaNovikova/gophermart/internal/models/json"
 	a "github.com/OlesyaNovikova/gophermart/internal/utils/auth"
@@ -42,7 +43,12 @@ func Withdraw() http.HandlerFunc {
 			http.Error(res, "Invalid order number", http.StatusUnprocessableEntity)
 			return
 		}
+		withdraw.UserName = name
 		withdraw.Sum = math.Ceil(withdraw.Sum*100) / 100
+		date := time.Now()
+		dateStr := date.Format(time.RFC3339)
+		withdraw.Date = date
+		withdraw.DateStr = dateStr
 
 		mut.Lock()
 		balance, err := store.s.GetBalance(ctx, name)
