@@ -17,6 +17,7 @@ func parseFlags() {
 	flag.StringVar(&runAddr, "a", "localhost:8080", "address and port to run server")
 	flag.StringVar(&dbAddr, "d", "", "data base DSN")
 	flag.StringVar(&accrualAddr, "r", "http://localhost:8585", "address and port of accrual system")
+	flag.StringVar(&key, "k", "default", "key")
 
 	flag.Parse()
 
@@ -32,7 +33,5 @@ func parseFlags() {
 
 	if envKey := os.Getenv("KEY"); envKey != "" {
 		key = envKey
-	} else {
-		key = "default"
 	}
 }

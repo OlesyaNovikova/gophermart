@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -11,7 +12,7 @@ import (
 	h "github.com/OlesyaNovikova/gophermart/internal/handlers"
 	ac "github.com/OlesyaNovikova/gophermart/internal/integrations/accruals"
 	m "github.com/OlesyaNovikova/gophermart/internal/middlewares"
-	s "github.com/OlesyaNovikova/gophermart/internal/store"
+	p "github.com/OlesyaNovikova/gophermart/internal/store/pg"
 	a "github.com/OlesyaNovikova/gophermart/internal/utils/auth"
 )
 
@@ -21,13 +22,24 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	//временное хранилище
-	store, err := s.NewStore(dbAddr)
+
+	base, err := sql.Open("pgx", dbAddr)
 	if err != nil {
 		panic(err)
 	}
-	h.InitStore(&store)
-	ch := ac.InitAccruals(ctx, accrualAddr, &store)
+	defer base.Close()
+	db, err := p.NewPostgresDB(ctx, base)
+	if err != nil {
+		panic(err)
+	}
+	//h.NewMemRepo(db)
+	//временное хранилище
+	//store, err := s.NewStore(dbAddr)
+	//if err != nil {
+	//	panic(err)
+	//}
+	h.InitStore(db)
+	ch := ac.InitAccruals(ctx, accrualAddr, db)
 	defer close(ch)
 
 	logger, err := zap.NewDevelopment()

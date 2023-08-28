@@ -22,8 +22,8 @@ type Accrual struct {
 }
 
 type Orders struct {
-	UserName string    `json:"-"`
 	Number   string    `json:"number"`
+	UserName string    `json:"-"`
 	Status   string    `json:"status"`
 	Accrual  float64   `json:"accrual,omitempty"`
 	DateStr  string    `json:"uploaded_at"`
@@ -31,8 +31,8 @@ type Orders struct {
 }
 
 type Withdraws struct {
-	UserName string    `json:"-"`
 	Order    string    `json:"order"`
+	UserName string    `json:"-"`
 	Sum      float64   `json:"sum"`
 	DateStr  string    `json:"processed_at,omitempty"`
 	Date     time.Time `json:"-"`
