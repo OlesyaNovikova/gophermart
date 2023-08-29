@@ -26,6 +26,11 @@ func Register() http.HandlerFunc {
 			return
 		}
 
+		if name.UserName == "" || name.Pass == "" {
+			http.Error(res, "incomplete data", http.StatusBadRequest)
+			return
+		}
+
 		if _, err = store.s.GetPass(ctx, name.UserName); err == nil {
 			res.WriteHeader(http.StatusConflict)
 			return

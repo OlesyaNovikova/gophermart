@@ -13,7 +13,7 @@ type TestStore struct {
 	wd map[string]j.Withdraws //ключ Order
 }
 
-func NewStore(addr string) (TestStore, error) {
+func NewStore() (TestStore, error) {
 	return TestStore{
 		us: make(map[string][]byte),
 		or: make(map[string]j.Orders),
