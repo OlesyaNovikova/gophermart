@@ -36,6 +36,11 @@ func main() {
 	ch := ac.InitAccruals(ctx, accrualAddr, db)
 	defer close(ch)
 
+	err = l.Initialize()
+	if err != nil {
+		panic(err)
+	}
+
 	router := mux.NewRouter()
 	router.HandleFunc("/api/user/register", m.WithLog(m.WithGzip(h.Register()))).Methods("POST")
 	router.HandleFunc("/api/user/login", m.WithLog(m.WithGzip(h.Login()))).Methods("POST")
