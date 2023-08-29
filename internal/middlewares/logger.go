@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"go.uber.org/zap"
+	l "github.com/OlesyaNovikova/gophermart/internal/utils/logger"
 )
 
 type responseData struct {
@@ -34,7 +34,7 @@ func (r *loggingWriter) WriteHeader(statusCode int) {
 	r.responseData.status = statusCode // захватываем код статуса
 }
 
-func WithLog(sugar zap.SugaredLogger, next http.Handler) http.HandlerFunc {
+func WithLog(next http.Handler) http.HandlerFunc {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -50,7 +50,7 @@ func WithLog(sugar zap.SugaredLogger, next http.Handler) http.HandlerFunc {
 
 		duration := time.Since(start)
 
-		sugar.Infoln(
+		l.Log.Infoln(
 			"uri", r.RequestURI,
 			"method", r.Method,
 			"duration", duration,
